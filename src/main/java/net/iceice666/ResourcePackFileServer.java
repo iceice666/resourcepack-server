@@ -15,21 +15,20 @@ import java.security.MessageDigest;
 
 public class ResourcePackFileServer {
 
-    public static final Logger LOGGER = LoggerFactory.getLogger("resourcepack-server");
-    static HttpServer server;
+    static final ModConfig CONFIG = new ModConfig();
+    static final Logger LOGGER = LoggerFactory.getLogger("resourcepack-server");
+    static HttpServer server = null;
 
     public static void start() {
 
         if (!isServerNeedToRun()) {
             return;
         }
-        // Create the server
 
-        int port = 25566; // Port on which the server will listen
+        int port = CONFIG.serverPort;
 
 
         // Create an HTTP server on the specified port
-
         try {
             server = HttpServer.create(new InetSocketAddress(port), 0);
         } catch (IOException e) {
@@ -46,40 +45,54 @@ public class ResourcePackFileServer {
         LOGGER.info("Resourcepack server is running on port " + port);
 
         // Generate SHA-1 of server resourcepack
-        try {
-            FileInputStream fis = new FileInputStream("server_resourcepack.zip");
-            MessageDigest sha1Digest = MessageDigest.getInstance("SHA-1");
+        if (CONFIG.calculateSha1) {
+            try {
+                FileInputStream fis = new FileInputStream("server_resourcepack.zip");
+                MessageDigest sha1Digest = MessageDigest.getInstance("SHA-1");
 
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = fis.read(buffer)) != -1) {
-                sha1Digest.update(buffer, 0, bytesRead);
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = fis.read(buffer)) != -1) {
+                    sha1Digest.update(buffer, 0, bytesRead);
+                }
+
+                byte[] sha1Hash = sha1Digest.digest();
+                StringBuilder hexString = new StringBuilder();
+
+                for (byte b : sha1Hash) {
+                    hexString.append(String.format("%02x", b));
+                }
+
+                String sha1 = hexString.toString();
+
+                LOGGER.info("SHA-1 of server resourcepack: " + sha1);
+
+                // Write SHA-1 to file
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter("server_resourcepack.sha1.txt"))) {
+                    writer.write(sha1);
+                }
+
+                fis.close();
+            } catch (Exception ignored) {
             }
-
-            byte[] sha1Hash = sha1Digest.digest();
-            StringBuilder hexString = new StringBuilder();
-
-            for (byte b : sha1Hash) {
-                hexString.append(String.format("%02x", b));
-            }
-
-            String sha1 = hexString.toString();
-
-            LOGGER.info("SHA-1 of server resourcepack: " + sha1);
-
-            // Write SHA-1 to file
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter("server_resourcepack.sha1.txt"))) {
-                writer.write(sha1);
-            }
-
-            fis.close();
-        } catch (Exception ignored) {
         }
     }
 
     static boolean isServerNeedToRun() {
+        // Check if server is enabled
+        if (!CONFIG.enabled) {
+            LOGGER.info("Resourcepack server is disabled");
+            return false;
+        }
         // Check if server_resourcepack.zip exists
-        return Files.exists(Paths.get("server_resourcepack.zip"));
+        else if (!Files.exists(Paths.get("server_resourcepack.zip"))) {
+            LOGGER.error("server_resourcepack.zip not found");
+            LOGGER.error("Please put server_resourcepack.zip in the server root directory");
+            LOGGER.info("Resourcepack server is disabled");
+            return false;
+        } else {
+            return true;
+        }
     }
 
     public static void stop() {

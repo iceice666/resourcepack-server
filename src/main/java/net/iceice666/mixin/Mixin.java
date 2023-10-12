@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @org.spongepowered.asm.mixin.Mixin(MinecraftServer.class)
 public class Mixin {
     @Inject(at = @At("HEAD"), method = "stop")
-    private void init(CallbackInfo info) {
+    private void stopResourcePackFileServer(CallbackInfo info) {
         ResourcePackFileServer.stop();
     }
 }

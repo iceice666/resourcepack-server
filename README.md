@@ -1,9 +1,13 @@
-# Fabric Example Mod
+# ResourcePack Server
 
-## Setup
+This is a mod that allow you host a resource pack server on your own server.
 
-For setup instructions please see the [fabric wiki page](https://fabricmc.net/wiki/tutorial:setup) that relates to the IDE that you are using.
+## How to use
+1. Install the mod on your server.
+2. Put your resource pack in the root directory of your server.
+3. Start the server.
 
-## License
+If this is your first run with this mod, mod will generate a config for you.
 
-This template is available under the CC0 license. Feel free to learn from it and incorporate it in your own projects.
+## How to config
+You can config the mod in the `config/resourcepack_server.properties` file.
