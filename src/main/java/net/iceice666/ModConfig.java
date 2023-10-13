@@ -15,16 +15,16 @@ public class ModConfig {
                                 
                 # server port
                 serverPort=25566
-                                
-                # calculate resourcepack sha1
-                # If you want, this mod can calculate the sha1 of the server resourcepack for you.
-                # but it will apply to your `server.properties` file, so you have to manually copy it to your `server.properties` file.
-                calculateSha1=true
+                
+                # overwrite the sha1 of server resourcepack
+                # if this is true, the server will calculate the sha1 of server_resourcepack.zip
+                # and send it to client. and if you have been set a sha1 in server.properties, it will be ignored.
+                overwriteSha1=true
                 """;
     }
 
 
     public int serverPort = CONFIG.getOrDefault("serverPort", 25566);
     public boolean enabled = CONFIG.getOrDefault("enabled", true);
-    public boolean calculateSha1 = CONFIG.getOrDefault("calculateSha1", true);
+    public boolean overwriteSha1 = CONFIG.getOrDefault("overwriteSha1", true);
 }

@@ -7,7 +7,10 @@ import com.sun.net.httpserver.HttpServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -15,9 +18,15 @@ import java.security.MessageDigest;
 
 public class ResourcePackFileServer {
 
-    static final ModConfig CONFIG = new ModConfig();
+    public static final ModConfig CONFIG = new ModConfig();
     static final Logger LOGGER = LoggerFactory.getLogger("resourcepack-server");
     static HttpServer server = null;
+
+    static String sha1 = "";
+
+    public static String getSha1() {
+        return sha1;
+    }
 
     public static void start() {
 
@@ -44,38 +53,33 @@ public class ResourcePackFileServer {
         server.start();
         LOGGER.info("Resourcepack server is running on port " + port);
 
-        // Generate SHA-1 of server resourcepack
-        if (CONFIG.calculateSha1) {
-            try {
-                FileInputStream fis = new FileInputStream("server_resourcepack.zip");
-                MessageDigest sha1Digest = MessageDigest.getInstance("SHA-1");
+        // Calculate SHA-1 of server resourcepack
+        try {
+            FileInputStream fis = new FileInputStream("server_resourcepack.zip");
+            MessageDigest sha1Digest = MessageDigest.getInstance("SHA-1");
 
-                byte[] buffer = new byte[1024];
-                int bytesRead;
-                while ((bytesRead = fis.read(buffer)) != -1) {
-                    sha1Digest.update(buffer, 0, bytesRead);
-                }
-
-                byte[] sha1Hash = sha1Digest.digest();
-                StringBuilder hexString = new StringBuilder();
-
-                for (byte b : sha1Hash) {
-                    hexString.append(String.format("%02x", b));
-                }
-
-                String sha1 = hexString.toString();
-
-                LOGGER.info("SHA-1 of server resourcepack: " + sha1);
-
-                // Write SHA-1 to file
-                try (BufferedWriter writer = new BufferedWriter(new FileWriter("server_resourcepack.sha1.txt"))) {
-                    writer.write(sha1);
-                }
-
-                fis.close();
-            } catch (Exception ignored) {
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = fis.read(buffer)) != -1) {
+                sha1Digest.update(buffer, 0, bytesRead);
             }
+
+            byte[] sha1Hash = sha1Digest.digest();
+            StringBuilder hexString = new StringBuilder();
+
+            for (byte b : sha1Hash) {
+                hexString.append(String.format("%02x", b));
+            }
+
+            sha1 = hexString.toString();
+
+            LOGGER.info("SHA-1 of server resourcepack: " + sha1);
+
+
+            fis.close();
+        } catch (Exception ignored) {
         }
+
     }
 
     static boolean isServerNeedToRun() {
