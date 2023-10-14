@@ -52,7 +52,7 @@ jobs:
           github-tag: "v${{env.VERSION}}"
           github-token: "${{env.GITHUB_TOKEN}}"
 
-          name: "ResourcePack Server v${{ env.VERSION }} for Minecraft ${{ MINECRAFT_VERSION }}"
+          name: "ResourcePack Server v${{ env.VERSION }} for Minecraft ${{ env.MINECRAFT_VERSION }}"
           version: "${{env.VERSION}}"
           version-type: release
           changelog-file: CHANGELOG.md
