@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Optional;
 
+@Mixin({MinecraftServer.class, ServerPropertiesHandler.class})
 public abstract class ModMixin {
     @Mixin(MinecraftServer.class)
     static class overwriteServer {

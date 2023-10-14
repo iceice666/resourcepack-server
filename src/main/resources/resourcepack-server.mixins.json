@@ -3,8 +3,9 @@
   "package": "net.iceice666.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "ModMixin$overwriteServer",
-    "ModMixin$overwriteProperties"
+    "ModMixin",
+    "ModMixin$overwriteProperties",
+    "ModMixin$overwriteServer"
   ],
   "server": [],
   "injectors": {
