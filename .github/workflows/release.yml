@@ -1,11 +1,8 @@
-
-
 name: Release mod to Github, Curseforge and Modrinth
 
 on: [ pull_request, workflow_dispatch ]
 
 env:
-  MINECRAFT_VERSION: 1.20
   JAVA_VERSION: 17
   VERSION: 1.0.1
   MODRINTH_TOKEN: ${{ secrets.PUBLISH_MODRINTH_TOKEN }}
@@ -58,6 +55,5 @@ jobs:
           changelog-file: CHANGELOG.md
 
           loaders: fabric
-          game-versions: "${{env.MINECRAFT_VERSION}}"
           java: "${{env.JAVA_VERSION}}"
 

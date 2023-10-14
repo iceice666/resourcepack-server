@@ -11,7 +11,7 @@
     "homepage": "https://github.com/iceice666/resourcepack-server",
     "sources": "https://github.com/iceice666/resourcepack-server"
   },
-  "license": "CC0-1.0",
+  "license": "MIT",
   "icon": "assets/resourcepack-server/icon.png",
   "environment": "*",
   "entrypoints": {
@@ -24,7 +24,7 @@
   ],
   "depends": {
     "fabricloader": ">=0.14.22",
-    "minecraft": ">=1.20",
+    "minecraft": "1.20.x",
     "java": ">=17",
     "fabric-api": "*"
   },
