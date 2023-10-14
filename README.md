@@ -11,3 +11,9 @@ If this is your first run with this mod, mod will generate a config for you.
 
 ## How to config
 You can config the mod in the `config/resourcepack_server.properties` file.
+
+## Mod commands
+- `calcSha1`<br>
+  This command can (re)calculate the sha1 of resourcepack.<br>
+  It's useful after you modify the resourcepack.<br><br>
+  Require [op-permission-level](https://minecraft.fandom.com/wiki/Permission_level) >=1

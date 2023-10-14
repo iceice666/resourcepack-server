@@ -19,6 +19,8 @@ public class ModConfig {
                 # overwrite the sha1 of server resourcepack
                 # if this is true, the server will calculate the sha1 of server_resourcepack.zip
                 # and send it to client. and if you have been set a sha1 in server.properties, it will be ignored.
+                #
+                # This option will not be affected by the 'enabled' option.
                 overwriteSha1=true
                 """;
     }

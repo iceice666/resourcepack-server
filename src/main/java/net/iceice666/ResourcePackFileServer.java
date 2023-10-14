@@ -28,32 +28,7 @@ public class ResourcePackFileServer {
         return sha1;
     }
 
-    public static void start() {
-
-        if (!isServerNeedToRun()) {
-            return;
-        }
-
-        int port = CONFIG.serverPort;
-
-
-        // Create an HTTP server on the specified port
-        try {
-            server = HttpServer.create(new InetSocketAddress(port), 0);
-        } catch (IOException e) {
-            LOGGER.error("Failed to create file server", e);
-            return;
-        }
-
-        // Create a context for serving the file
-        server.createContext("/", new FileHandler());
-
-        // Start the server
-        server.setExecutor(null); // Use the default executor
-        server.start();
-        LOGGER.info("Resourcepack server is running on port " + port);
-
-        // Calculate SHA-1 of server resourcepack
+    public static void calculateSha1() {
         try {
             FileInputStream fis = new FileInputStream("server_resourcepack.zip");
             MessageDigest sha1Digest = MessageDigest.getInstance("SHA-1");
@@ -73,12 +48,43 @@ public class ResourcePackFileServer {
 
             sha1 = hexString.toString();
 
-            LOGGER.info("SHA-1 of server resourcepack: " + sha1);
+            LOGGER.info("SHA-1 of server resourcepack is " + sha1);
 
 
             fis.close();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            LOGGER.error(String.valueOf(e));
         }
+    }
+
+    public static void start() {
+
+        if (!isServerNeedToRun()) {
+            return;
+        }
+
+        int port = CONFIG.serverPort;
+
+
+        // Create an HTTP server on the specified port
+        try {
+            server = HttpServer.create(new InetSocketAddress(port), 0);
+        } catch (IOException e) {
+            LOGGER.error("Failed to create file server", e);
+            return;
+        }
+
+
+        // Create a context for serving the file
+        server.createContext("/", new FileHandler());
+
+        // Start the server
+        server.setExecutor(null); // Use the default executor
+        server.start();
+        LOGGER.info("Resourcepack server is running on port " + port);
+
+        // Calculate sha1
+        calculateSha1();
 
     }
 
