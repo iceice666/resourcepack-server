@@ -19,6 +19,7 @@ public abstract class ModMixin {
     static class overwriteServer {
         @Inject(at = @At("HEAD"), method = "stop")
         private void stopResourcePackFileServer(CallbackInfo info) {
+            ResourcePackFileServer.configLoader.saveConfig();
             ResourcePackFileServer.stop();
         }
     }

@@ -4,6 +4,7 @@ import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import net.iceice666.lib.ConfigLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +19,8 @@ import java.security.MessageDigest;
 
 public class ResourcePackFileServer {
 
-    public static final ModConfig CONFIG = new ModConfig();
+    public static ConfigLoader configLoader = new ConfigLoader(new ModConfig());
+    public static final ModConfig CONFIG = (ModConfig) configLoader.loadConfig();
     static final Logger LOGGER = LoggerFactory.getLogger("resourcepack-server");
     static HttpServer server = null;
 

@@ -1,32 +1,37 @@
+
 package net.iceice666;
 
-import net.iceice666.lib.SimpleConfig;
+import net.fabricmc.loader.api.FabricLoader;
+import net.iceice666.lib.Comment;
+import net.iceice666.lib.CustomConfig;
+import org.jetbrains.annotations.NotNull;
 
-public class ModConfig {
+import java.nio.file.Path;
 
-    SimpleConfig CONFIG = SimpleConfig.of("resourcepack-server").provider(this::provider).request();
+public class ModConfig implements CustomConfig {
 
-    private String provider(String filename) {
-        return """
-                #default config
-                                
-                # enable the server
-                enabled=true
-                                
-                # server port
-                serverPort=25566
-                
-                # overwrite the sha1 of server resourcepack
-                # if this is true, the server will calculate the sha1 of server_resourcepack.zip
-                # and send it to client. and if you have been set a sha1 in server.properties, it will be ignored.
-                #
-                # This option will not be affected by the 'enabled' option.
-                overwriteSha1=true
-                """;
+
+    @Comment("server port")
+    public int serverPort = 25566;
+
+    @Comment("enable the server")
+    public boolean enabled = true;
+
+    @Comment(
+            """
+                            overwrite the sha1 of server resourcepack
+                            if this is true, the server will calculate the sha1 of server_resourcepack.zip
+                            and send it to client. and if you have been set a sha1 in server.properties, it will be ignored.
+                                         
+                            This option will not be affected by the 'enabled' option.
+                    """
+    )
+    public boolean overwriteSha1 = true;
+
+
+    @NotNull
+    @Override
+    public Path getConfigFilePath() {
+        return FabricLoader.getInstance().getConfigDir().resolve("resourcepack-server.properties");
     }
-
-
-    public int serverPort = CONFIG.getOrDefault("serverPort", 25566);
-    public boolean enabled = CONFIG.getOrDefault("enabled", true);
-    public boolean overwriteSha1 = CONFIG.getOrDefault("overwriteSha1", true);
 }
