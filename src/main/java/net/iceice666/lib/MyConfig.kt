@@ -12,7 +12,7 @@ annotation class Comment(val value: String)
 
 class ConfigLoader<T : CustomConfig>(private val customConfig: T) {
 
-    private var config: MutableMap<String, Pair<String, Any>> = mutableMapOf()
+    private var comment: MutableMap<String, String> = mutableMapOf()
 
     /**
      * update the config class
@@ -22,8 +22,7 @@ class ConfigLoader<T : CustomConfig>(private val customConfig: T) {
      * @return the config class
      */
 
-    private fun updateConfigClass(config: MutableMap<String, Pair<String, Any>>): T {
-        this.config = config
+    private fun updateConfigClass(config: MutableMap<String, Any>) {
 
         val classFields = customConfig.javaClass.declaredFields
         for (classField in classFields) {
@@ -31,7 +30,7 @@ class ConfigLoader<T : CustomConfig>(private val customConfig: T) {
                 continue
             }
             classField.isAccessible = true
-            val (_, value) = config[classField.name] ?: continue
+            val value = config[classField.name] ?: continue
 
             classField.set(
                 customConfig, when (classField.type) {
@@ -43,10 +42,23 @@ class ConfigLoader<T : CustomConfig>(private val customConfig: T) {
                     else -> value
                 }
             )
+
+
+            val comment = comment[classField.name]
+            if (comment != null) {
+                this.comment[classField.name] = comment
+            } else {
+                this.comment[classField.name] = classField
+                    .getAnnotation(Comment::class.java)
+                    ?.value
+                    ?.trimIndent()
+                    ?.split("\n")
+                    ?.joinToString("\n") { "# $it" }
+                    ?: ""
+            }
         }
 
 
-        return customConfig
     }
 
 
@@ -58,97 +70,78 @@ class ConfigLoader<T : CustomConfig>(private val customConfig: T) {
                 continue
             }
             classField.isAccessible = true
-            val comment = classField.getAnnotation(Comment::class.java)
-            val value = classField.get(config)
+
+            val comment = this.comment[classField.name]
             if (comment != null) {
-                configText += comment.value.split("\n").joinToString("\n") { "# $it" } + "\n"
+                configText += comment + "\n"
             }
+
+            val value = classField.get(config)
             configText += "${classField.name}=$value\n\n"
         }
         return configText
     }
 
-    private fun generateConfigText(config: MutableMap<String, Pair<String, Any>>): String {
-        var configText = ""
-        for ((key, value) in config) {
-            val (comment, value) = value
-            if (comment != "") {
-                configText += comment + "\n"
-            }
-            configText += "$key=$value\n\n"
-        }
-        return configText
-    }
 
-    private fun getConfigFromFile(file: File): T {
+    private fun updateConfigFromFile(file: File) {
 
-
-        val configFromFile: MutableMap<String, Pair<String, Any>> = mutableMapOf()
+        val config: MutableMap<String, Any> = mutableMapOf()
+        val comment: MutableMap<String, String> = mutableMapOf()
         val lines = file.readLines()
-        var comment = ""
+        var tempComment = ""
         for ((i, line) in lines.withIndex()) {
+            if (i == lines.count() && (line == "" || line.startsWith("#"))) {
+                tempComment += line.substring(1)
+
+                comment["_LAST_LINE"] = tempComment
+                break
+            }
+
             if (line == "") {
                 continue
             }
+
             if (line.startsWith("#")) {
-                comment += line + "\n"
+                tempComment += line + "\n"
                 continue
             }
-            val splited = line.split("=")
-            if (splited.size != 2) {
+
+
+            val split = line.split("=")
+            if (split.size != 2) {
                 throw RuntimeException("Config file format error at line ${i + 1}")
             }
-            val (key, value) = splited
-            configFromFile[key] = Pair(comment, value)
-            comment = ""
+            val (key, value) = split
+            config[key] = value
+            comment[key] = tempComment
+            tempComment = ""
         }
-        return updateConfigClass(configFromFile)
 
+
+        updateConfigClass(config)
     }
 
-    private fun getConfigFromClass(customConfig: T): T {
-        val config: MutableMap<String, Pair<String, Any>> = mutableMapOf()
-        val classFields = customConfig.javaClass.declaredFields
-        for (classField in classFields) {
-            if (classField.name == "configFilePath") {
-                continue
-            }
-
-            classField.isAccessible = true
-            val comment = classField.getAnnotation(Comment::class.java)
-            val value = classField.get(customConfig)
-            if (comment != null) {
-                config[classField.name] =
-                    Pair((comment.value.trimIndent().split("\n").joinToString("\n") { "# $it" }), value)
-            } else {
-                config[classField.name] = Pair("", value)
-            }
-        }
-        return updateConfigClass(config)
-    }
 
     fun loadConfig(): T {
         val file = customConfig.configFilePath.toFile()
-        val config = if (file.exists() && file.isFile) {
-            getConfigFromFile(
+
+        if (file.exists() && file.isFile) {
+            updateConfigFromFile(
                 customConfig.configFilePath.toFile()
             )
         } else {
-            val configFromClass = getConfigFromClass(customConfig)
             file.createNewFile()
-            file.writeText(generateConfigText(configFromClass))
-            configFromClass
+            file.writeText(generateConfigText(customConfig))
         }
 
-        return config
+        return customConfig
     }
 
 
     fun saveConfig() {
         val file = customConfig.configFilePath.toFile()
 
-        getConfigFromClass(customConfig)
-        file.writeText(generateConfigText(this.config))
+        file.writeText(generateConfigText(customConfig))
     }
 
 

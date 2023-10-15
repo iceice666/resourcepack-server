@@ -19,8 +19,8 @@ import java.security.MessageDigest;
 
 public class ResourcePackFileServer {
 
-    public static ConfigLoader configLoader = new ConfigLoader(new ModConfig());
-    public static final ModConfig CONFIG = (ModConfig) configLoader.loadConfig();
+    public static ConfigLoader<ModConfig> configLoader = new ConfigLoader<>(new ModConfig());
+    public static final ModConfig CONFIG = configLoader.loadConfig();
     static final Logger LOGGER = LoggerFactory.getLogger("resourcepack-server");
     static HttpServer server = null;
 
