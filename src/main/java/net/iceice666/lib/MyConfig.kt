@@ -43,7 +43,6 @@ class ConfigLoader<T : CustomConfig>(private val customConfig: T) {
                 }
             )
 
-
             val comment = comment[classField.name]
             if (comment != null) {
                 this.comment[classField.name] = comment
@@ -57,8 +56,6 @@ class ConfigLoader<T : CustomConfig>(private val customConfig: T) {
                     ?: ""
             }
         }
-
-
     }
 
 
@@ -79,6 +76,8 @@ class ConfigLoader<T : CustomConfig>(private val customConfig: T) {
             val value = classField.get(config)
             configText += "${classField.name}=$value\n\n"
         }
+
+        configText += this.comment["_LAST_LINE"]
         return configText
     }
 
@@ -106,17 +105,15 @@ class ConfigLoader<T : CustomConfig>(private val customConfig: T) {
                 continue
             }
 
-
             val split = line.split("=")
-            if (split.size != 2) {
+            if (split.size < 2) {
                 throw RuntimeException("Config file format error at line ${i + 1}")
             }
-            val (key, value) = split
-            config[key] = value
+            val key = split[0]
+            config[key] = split.drop(0).joinToString { "=" }
             comment[key] = tempComment
             tempComment = ""
         }
-
 
         updateConfigClass(config)
     }
@@ -143,14 +140,9 @@ class ConfigLoader<T : CustomConfig>(private val customConfig: T) {
 
         file.writeText(generateConfigText(customConfig))
     }
-
-
 }
 
 
 interface CustomConfig {
-
     val configFilePath: Path
-
-
 }
