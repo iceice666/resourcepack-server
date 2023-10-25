@@ -5,34 +5,55 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import net.iceice666.lib.ConfigLoader;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.InetSocketAddress;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.MessageDigest;
 
-public class ResourcePackFileServer {
 
+public class ResourcePackFileServer {
     public static ConfigLoader<ModConfig> configLoader = new ConfigLoader<>(new ModConfig());
-    public static final ModConfig CONFIG = configLoader.loadConfig();
+    private static final ModConfig CONFIG = configLoader.loadConfig();
     static final Logger LOGGER = LoggerFactory.getLogger("resourcepack-server");
     static HttpServer server = null;
 
-    static String sha1 = "";
+    private static String sha1 = "";
+    private static Boolean isLocalPath = true;
+    private static String path = CONFIG.path;
+
+    public static Boolean shouldRedirect() {
+        return !isLocalPath;
+    }
+
+    public static Boolean shouldOverwriteSha1() {
+        return CONFIG.overwriteSha1;
+    }
 
     public static String getSha1() {
         return sha1;
     }
 
+    public static void setSha1(String sha1_hash) {
+        sha1 = sha1_hash;
+    }
+
+    public static String getPath() {
+        return path;
+    }
+
+    public static void setPath(@NotNull String location) {
+        String s = location.trim().toLowerCase();
+        isLocalPath = s.startsWith("http://") || s.startsWith("https://");
+        path = location;
+    }
+
+
     public static void calculateSha1() {
         try {
-            FileInputStream fis = new FileInputStream("server_resourcepack.zip");
+            FileInputStream fis = new FileInputStream(path);
             MessageDigest sha1Digest = MessageDigest.getInstance("SHA-1");
 
             byte[] buffer = new byte[1024];
@@ -50,10 +71,15 @@ public class ResourcePackFileServer {
 
             sha1 = hexString.toString();
 
+            LOGGER.info("Path of resourcepack is " + path);
             LOGGER.info("SHA-1 of server resourcepack is " + sha1);
 
 
             fis.close();
+        } catch (FileNotFoundException e) {
+            LOGGER.error("Resourcepack not found");
+            LOGGER.error("Please check your config file");
+            LOGGER.error("Or run the command '/resourcepackserver set' to set correct resourcepack");
         } catch (Exception e) {
             LOGGER.error(String.valueOf(e));
         }
@@ -96,15 +122,9 @@ public class ResourcePackFileServer {
             LOGGER.info("Resourcepack server is disabled");
             return false;
         }
-        // Check if server_resourcepack.zip exists
-        else if (!Files.exists(Paths.get("server_resourcepack.zip"))) {
-            LOGGER.error("server_resourcepack.zip not found");
-            LOGGER.error("Please put server_resourcepack.zip in the server root directory");
-            LOGGER.info("Resourcepack server is disabled");
-            return false;
-        } else {
-            return true;
-        }
+
+        return true;
+
     }
 
     public static void stop() {
@@ -112,11 +132,16 @@ public class ResourcePackFileServer {
         LOGGER.info("Stopping resourcepack server");
         server.stop(0);
     }
+
+
 }
 
 class FileHandler implements HttpHandler {
+    static final Logger LOGGER = LoggerFactory.getLogger("resourcepack-server");
+
     @Override
     public void handle(HttpExchange exchange) throws IOException {
+
         // Get the output stream for the response
         OutputStream os = exchange.getResponseBody();
 
@@ -129,8 +154,10 @@ class FileHandler implements HttpHandler {
         // Set the Content-Disposition header to prompt for download
         headers.set("Content-Disposition", "attachment; filename=server_resourcepack.zip");
 
+
         // Get the file to be served (replace with the actual file path)
-        File file = new File("server_resourcepack.zip");
+        File file = new File(ResourcePackFileServer.getPath());
+
 
         // Send the file as the response
         exchange.sendResponseHeaders(200, file.length());
@@ -143,5 +170,7 @@ class FileHandler implements HttpHandler {
         }
 
         os.close();
+
+
     }
 }

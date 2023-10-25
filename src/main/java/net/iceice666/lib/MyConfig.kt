@@ -77,7 +77,10 @@ class ConfigLoader<T : CustomConfig>(private val customConfig: T) {
             configText += "${classField.name}=$value\n\n"
         }
 
-        configText += this.comment["_LAST_LINE"]
+        if (this.comment["_LAST_LINE"] != null) {
+            configText += this.comment["_LAST_LINE"]
+        }
+
         return configText
     }
 

@@ -17,12 +17,18 @@ public abstract class OverwriteResourcePackProperties {
 
 
     @Inject(at = @At("HEAD"), method = "getServerResourcePackProperties", cancellable = true)
-    private static void getServerResourcePackProperties(String url, String sha1, @Nullable String hash, boolean required, String prompt, CallbackInfoReturnable<Optional<MinecraftServer.ServerResourcePackProperties>> cir) {
-        if (ResourcePackFileServer.CONFIG.overwriteSha1) {
+    private static void getServerResourcePackProperties(
+            String url,
+            String sha1,
+            @Nullable String hash,
+            boolean required,
+            String prompt,
+            CallbackInfoReturnable<Optional<MinecraftServer.ServerResourcePackProperties>> cir) {
+        if (ResourcePackFileServer.shouldOverwriteSha1()) {
 
             Text text = ServerPropertiesHandler.parseResourcePackPrompt(prompt);
             cir.setReturnValue(Optional.of(new MinecraftServer.ServerResourcePackProperties(
-                    url,
+                    ResourcePackFileServer.shouldRedirect() ? ResourcePackFileServer.getPath() : url,
                     ResourcePackFileServer.getSha1(),
                     required,
                     text)));

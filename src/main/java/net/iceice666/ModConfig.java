@@ -28,6 +28,12 @@ public class ModConfig implements CustomConfig {
     )
     public boolean overwriteSha1 = true;
 
+    @Comment("""
+resourcepack path
+It's can be a local path or a url path.
+""")
+    public String path = "server_resourcepack.zip";
+
 
     @NotNull
     @Override
