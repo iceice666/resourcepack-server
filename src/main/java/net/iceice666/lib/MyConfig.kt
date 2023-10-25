@@ -110,7 +110,7 @@ class ConfigLoader<T : CustomConfig>(private val customConfig: T) {
                 throw RuntimeException("Config file format error at line ${i + 1}")
             }
             val key = split[0]
-            config[key] = split.drop(0).joinToString { "=" }
+            config[key] = split.drop(1).joinToString("=")
             comment[key] = tempComment
             tempComment = ""
         }

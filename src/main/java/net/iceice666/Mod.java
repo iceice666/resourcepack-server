@@ -4,6 +4,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.server.command.ServerCommandSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +20,16 @@ public class Mod implements DedicatedServerModInitializer {
 
     @Override
     public void onInitializeServer() {
-        ResourcePackFileServer.start();
-        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> MyCommand.register(dispatcher));
+
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
+                MyCommand.register(dispatcher));
+
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> ResourcePackFileServer.start());
+
+        ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
+            ResourcePackFileServer.configLoader.saveConfig();
+            ResourcePackFileServer.stop();
+        });
     }
 
 
