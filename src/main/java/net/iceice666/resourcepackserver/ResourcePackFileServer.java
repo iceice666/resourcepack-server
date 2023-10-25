@@ -1,13 +1,12 @@
-package net.iceice666;
+package net.iceice666.resourcepackserver;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-import net.iceice666.lib.ConfigLoader;
+import net.iceice666.resourcepackserver.lib.ConfigLoader;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -17,7 +16,7 @@ import java.security.MessageDigest;
 public class ResourcePackFileServer {
     public static ConfigLoader<ModConfig> configLoader = new ConfigLoader<>(new ModConfig());
     private static final ModConfig CONFIG = configLoader.loadConfig();
-    static final Logger LOGGER = LoggerFactory.getLogger("resourcepack-server");
+    static final Logger LOGGER = Mod.LOGGER;
     static HttpServer server = null;
 
     private static String sha1 = "";
@@ -137,7 +136,7 @@ public class ResourcePackFileServer {
 }
 
 class FileHandler implements HttpHandler {
-    static final Logger LOGGER = LoggerFactory.getLogger("resourcepack-server");
+
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {

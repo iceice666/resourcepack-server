@@ -1,4 +1,4 @@
-package net.iceice666;
+package net.iceice666.resourcepackserver;
 
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -17,7 +17,7 @@ public class Mod implements DedicatedServerModInitializer {
     public void onInitializeServer() {
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
-                net.iceice666.Command.register(dispatcher));
+                Command.register(dispatcher));
 
         ServerLifecycleEvents.SERVER_STARTED.register(server -> ResourcePackFileServer.start());
 

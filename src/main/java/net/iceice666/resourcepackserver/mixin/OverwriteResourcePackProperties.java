@@ -1,6 +1,6 @@
-package net.iceice666.mixin;
+package net.iceice666.resourcepackserver.mixin;
 
-import net.iceice666.ResourcePackFileServer;
+import net.iceice666.resourcepackserver.ResourcePackFileServer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.ServerPropertiesHandler;
 import net.minecraft.text.Text;

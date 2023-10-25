@@ -56,5 +56,5 @@ jobs:
           loaders: fabric
           java: 17
 
-          name: "ResourcePack Server v${{ steps.read-property.outputs.mod_version }}"
+          name: "ResourcePack Server v${{ steps.read_property.outputs.mod_version }}"
 

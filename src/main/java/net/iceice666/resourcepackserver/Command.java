@@ -1,10 +1,9 @@
-package net.iceice666;
+package net.iceice666.resourcepackserver;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.server.command.ServerCommandSource;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.getString;
 import static com.mojang.brigadier.arguments.StringArgumentType.string;
@@ -12,7 +11,7 @@ import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
 public class Command {
-    public static final Logger LOGGER = LoggerFactory.getLogger("resourcepack-server");
+    public static final Logger LOGGER = Mod.LOGGER;
     private static final int SINGLE_SUCCESS = com.mojang.brigadier.Command.SINGLE_SUCCESS;
 
     // This function defines your command

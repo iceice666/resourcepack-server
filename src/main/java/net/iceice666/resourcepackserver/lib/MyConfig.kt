@@ -1,6 +1,6 @@
 @file:JvmName("Config")
 
-package net.iceice666.lib
+package net.iceice666.resourcepackserver.lib
 
 import java.io.File
 import java.nio.file.Path

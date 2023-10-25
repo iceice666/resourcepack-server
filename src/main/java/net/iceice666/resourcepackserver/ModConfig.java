@@ -1,9 +1,9 @@
 
-package net.iceice666;
+package net.iceice666.resourcepackserver;
 
 import net.fabricmc.loader.api.FabricLoader;
-import net.iceice666.lib.Comment;
-import net.iceice666.lib.CustomConfig;
+import net.iceice666.resourcepackserver.lib.Comment;
+import net.iceice666.resourcepackserver.lib.CustomConfig;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;

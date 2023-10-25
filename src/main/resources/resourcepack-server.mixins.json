@@ -1,9 +1,8 @@
 {
   "required": true,
-  "package": "net.iceice666.mixin",
+  "package": "net.iceice666.resourcepackserver.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-
     "OverwriteResourcePackProperties"
   ],
   "server": [],

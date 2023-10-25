@@ -16,7 +16,7 @@
   "environment": "*",
   "entrypoints": {
     "server": [
-      "net.iceice666.Mod"
+      "net.iceice666.resourcepackserver.Mod"
     ]
   },
   "mixins": [
@@ -27,8 +27,5 @@
     "minecraft": "1.20.x",
     "java": ">=17",
     "fabric-api": "*"
-  },
-  "suggests": {
-    "another-mod": "*"
   }
 }
