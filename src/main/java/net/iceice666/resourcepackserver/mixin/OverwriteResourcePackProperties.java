@@ -29,7 +29,7 @@ public abstract class OverwriteResourcePackProperties {
             Text text = ServerPropertiesHandler.parseResourcePackPrompt(prompt);
             cir.setReturnValue(Optional.of(new MinecraftServer.ServerResourcePackProperties(
                     ResourcePackFileServer.shouldRedirect() ? ResourcePackFileServer.getPath() : url,
-                    ResourcePackFileServer.getSha1(),
+                    ResourcePackFileServer.sha1,
                     required,
                     text)));
         }

@@ -1,175 +1,153 @@
-package net.iceice666.resourcepackserver;
+package net.iceice666.resourcepackserver
 
-import com.sun.net.httpserver.Headers;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
-import net.iceice666.resourcepackserver.lib.ConfigLoader;
-import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
+import com.sun.net.httpserver.HttpExchange
+import com.sun.net.httpserver.HttpHandler
+import com.sun.net.httpserver.HttpServer
+import net.iceice666.resourcepackserver.lib.ConfigLoader
+import org.slf4j.Logger
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileNotFoundException
+import java.io.IOException
+import java.net.InetSocketAddress
+import java.security.MessageDigest
+import java.util.*
 
-import java.io.*;
-import java.net.InetSocketAddress;
-import java.security.MessageDigest;
+object ResourcePackFileServer {
+    var configLoader = ConfigLoader(ModConfig())
+    private val CONFIG = configLoader.loadConfig()
+    private val LOGGER: Logger = Mod.LOGGER
+    private var server: HttpServer? = null
 
+    @JvmField
+    var sha1 = ""
+    private var isLocalPath = true
+    private var path = CONFIG.path
 
-public class ResourcePackFileServer {
-    public static ConfigLoader<ModConfig> configLoader = new ConfigLoader<>(new ModConfig());
-    private static final ModConfig CONFIG = configLoader.loadConfig();
-    static final Logger LOGGER = Mod.LOGGER;
-    static HttpServer server = null;
-
-    private static String sha1 = "";
-    private static Boolean isLocalPath = true;
-    private static String path = CONFIG.path;
-
-    public static Boolean shouldRedirect() {
-        return !isLocalPath;
+    @JvmStatic
+    fun shouldRedirect(): Boolean {
+        return !isLocalPath
     }
 
-    public static Boolean shouldOverwriteSha1() {
-        return CONFIG.overwriteSha1;
+    @JvmStatic
+    fun shouldOverwriteSha1(): Boolean {
+        return CONFIG.overwriteSha1
     }
 
-    public static String getSha1() {
-        return sha1;
+    @JvmStatic
+    fun getPath(): String {
+        return path
     }
 
-    public static void setSha1(String sha1_hash) {
-        sha1 = sha1_hash;
+    fun setPath(location: String) {
+        val s = location.trim { it <= ' ' }.lowercase(Locale.getDefault())
+        isLocalPath = s.startsWith("http://") || s.startsWith("https://")
+        path = location
     }
 
-    public static String getPath() {
-        return path;
-    }
-
-    public static void setPath(@NotNull String location) {
-        String s = location.trim().toLowerCase();
-        isLocalPath = s.startsWith("http://") || s.startsWith("https://");
-        path = location;
-    }
-
-
-    public static void calculateSha1() {
+    fun calculateSha1() {
         try {
-            FileInputStream fis = new FileInputStream(path);
-            MessageDigest sha1Digest = MessageDigest.getInstance("SHA-1");
-
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = fis.read(buffer)) != -1) {
-                sha1Digest.update(buffer, 0, bytesRead);
+            val fis = FileInputStream(path)
+            val sha1Digest = MessageDigest.getInstance("SHA-1")
+            val buffer = ByteArray(1024)
+            var bytesRead: Int
+            while (fis.read(buffer).also { bytesRead = it } != -1) {
+                sha1Digest.update(buffer, 0, bytesRead)
             }
-
-            byte[] sha1Hash = sha1Digest.digest();
-            StringBuilder hexString = new StringBuilder();
-
-            for (byte b : sha1Hash) {
-                hexString.append(String.format("%02x", b));
+            val sha1Hash = sha1Digest.digest()
+            val hexString = StringBuilder()
+            for (b in sha1Hash) {
+                hexString.append(String.format("%02x", b))
             }
-
-            sha1 = hexString.toString();
-
-            LOGGER.info("Path of resourcepack is " + path);
-            LOGGER.info("SHA-1 of server resourcepack is " + sha1);
-
-
-            fis.close();
-        } catch (FileNotFoundException e) {
-            LOGGER.error("Resourcepack not found");
-            LOGGER.error("Please check your config file");
-            LOGGER.error("Or run the command '/resourcepackserver set' to set correct resourcepack");
-        } catch (Exception e) {
-            LOGGER.error(String.valueOf(e));
+            sha1 = hexString.toString()
+            LOGGER.info("Path of resourcepack is $path")
+            LOGGER.info("SHA-1 of server resourcepack is $sha1")
+            fis.close()
+        } catch (e: FileNotFoundException) {
+            LOGGER.error("Resourcepack not found")
+            LOGGER.error("Please check your config file")
+            LOGGER.error("Or run the command '/resourcepackserver set' to set correct resourcepack")
+        } catch (e: Exception) {
+            LOGGER.error(e.toString())
         }
     }
 
-    public static void start() {
-
-        if (!isServerNeedToRun()) {
-            return;
+    fun start() {
+        if (!isServerNeedToRun) {
+            return
         }
-
-        int port = CONFIG.serverPort;
+        val port = CONFIG.serverPort
 
 
         // Create an HTTP server on the specified port
         try {
-            server = HttpServer.create(new InetSocketAddress(port), 0);
-        } catch (IOException e) {
-            LOGGER.error("Failed to create file server", e);
-            return;
-        }
+            server = HttpServer.create(InetSocketAddress(port), 0)
 
+        } catch (e: IOException) {
+            LOGGER.error("Failed to create file server", e)
+            return
+        }
 
         // Create a context for serving the file
-        server.createContext("/", new FileHandler());
+        server!!.createContext("/", FileHandler())
 
         // Start the server
-        server.setExecutor(null); // Use the default executor
-        server.start();
-        LOGGER.info("Resourcepack server is running on port " + port);
+        server!!.setExecutor(null) // Use the default executor
+        server!!.start()
+        LOGGER.info("Resourcepack server is running on port $port")
 
         // Calculate sha1
-        calculateSha1();
+        calculateSha1()
 
     }
 
-    static boolean isServerNeedToRun() {
-        // Check if server is enabled
-        if (!CONFIG.enabled) {
-            LOGGER.info("Resourcepack server is disabled");
-            return false;
+    private val isServerNeedToRun: Boolean
+        get() {
+            // Check if server is enabled
+            if (!CONFIG.enabled) {
+                LOGGER.info("Resourcepack server is disabled")
+                return false
+            }
+            return true
         }
 
-        return true;
-
+    fun stop() {
+        if (server == null) return
+        LOGGER.info("Stopping resourcepack server")
+        server!!.stop(0)
     }
-
-    public static void stop() {
-        if (server == null) return;
-        LOGGER.info("Stopping resourcepack server");
-        server.stop(0);
-    }
-
-
 }
 
-class FileHandler implements HttpHandler {
-
-
-    @Override
-    public void handle(HttpExchange exchange) throws IOException {
+internal class FileHandler : HttpHandler {
+    @Throws(IOException::class)
+    override fun handle(exchange: HttpExchange) {
 
         // Get the output stream for the response
-        OutputStream os = exchange.getResponseBody();
+        val os = exchange.responseBody
 
         // Get the headers of the HTTP request
-        Headers headers = exchange.getResponseHeaders();
+        val headers = exchange.responseHeaders
 
         // Set the content type to "application/zip" (for ZIP files)
-        headers.set("Content-Type", "application/zip");
+        headers["Content-Type"] = "application/zip"
 
         // Set the Content-Disposition header to prompt for download
-        headers.set("Content-Disposition", "attachment; filename=server_resourcepack.zip");
+        headers["Content-Disposition"] = "attachment; filename=server_resourcepack.zip"
 
 
         // Get the file to be served (replace with the actual file path)
-        File file = new File(ResourcePackFileServer.getPath());
+        val file = File(ResourcePackFileServer.getPath())
 
 
         // Send the file as the response
-        exchange.sendResponseHeaders(200, file.length());
-        try (var is = file.toURI().toURL().openStream()) {
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = is.read(buffer)) != -1) {
-                os.write(buffer, 0, bytesRead);
+        exchange.sendResponseHeaders(200, file.length())
+        file.toURI().toURL().openStream().use { `is` ->
+            val buffer = ByteArray(1024)
+            var bytesRead: Int
+            while (`is`.read(buffer).also { bytesRead = it } != -1) {
+                os.write(buffer, 0, bytesRead)
             }
         }
-
-        os.close();
-
-
+        os.close()
     }
 }

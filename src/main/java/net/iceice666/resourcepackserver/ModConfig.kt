@@ -1,43 +1,39 @@
+package net.iceice666.resourcepackserver
 
-package net.iceice666.resourcepackserver;
+import net.fabricmc.loader.api.FabricLoader
+import net.iceice666.resourcepackserver.lib.Comment
+import net.iceice666.resourcepackserver.lib.CustomConfig
+import java.nio.file.Path
 
-import net.fabricmc.loader.api.FabricLoader;
-import net.iceice666.resourcepackserver.lib.Comment;
-import net.iceice666.resourcepackserver.lib.CustomConfig;
-import org.jetbrains.annotations.NotNull;
-
-import java.nio.file.Path;
-
-public class ModConfig implements CustomConfig {
-
-
+class ModConfig : CustomConfig {
+    @JvmField
     @Comment("server port")
-    public int serverPort = 25566;
+    var serverPort = 25566
 
+    @JvmField
     @Comment("enable the server")
-    public boolean enabled = true;
+    var enabled = true
 
+    @JvmField
     @Comment(
-            """
-                            overwrite the sha1 of server resourcepack
-                            if this is true, the server will calculate the sha1 of server_resourcepack.zip
-                            and send it to client. and if you have been set a sha1 in server.properties, it will be ignored.
+        """
+    overwrite the sha1 of server resourcepack
+    if this is true, the server will calculate the sha1 of server_resourcepack.zip
+    and send it to client. and if you have been set a sha1 in server.properties, it will be ignored.
                                          
-                            This option will not be affected by the 'enabled' option.
-                    """
+    This option will not be affected by the 'enabled' option.
+    """
     )
-    public boolean overwriteSha1 = true;
+    var overwriteSha1 = true
 
-    @Comment("""
-resourcepack path
-It's can be a local path or a url path.
-""")
-    public String path = "server_resourcepack.zip";
-
-
-    @NotNull
-    @Override
-    public Path getConfigFilePath() {
-        return FabricLoader.getInstance().getConfigDir().resolve("resourcepack-server.properties");
-    }
+    @JvmField
+    @Comment(
+        """
+    resourcepack path
+    It's can be a local path or a url path.
+    """
+    )
+    var path = "server_resourcepack.zip"
+    override val configFilePath: Path
+        get() = FabricLoader.getInstance().configDir.resolve("resourcepack-server.properties")
 }

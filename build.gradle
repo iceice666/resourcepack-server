@@ -49,7 +49,8 @@ dependencies {
 
 
     // kotlin
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    modImplementation("net.fabricmc:fabric-language-kotlin:1.10.10+kotlin.1.9.10")
+
 }
 
 processResources {
