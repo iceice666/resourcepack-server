@@ -19,9 +19,8 @@ object ResourcePackFileServer {
     private val LOGGER: Logger = Mod.LOGGER
     private var server: HttpServer? = null
 
-    @JvmField
-    var sha1 = ""
-    private var isLocalPath = true
+    private var sha1 = ""
+     var isLocalPath = true
     private var path = CONFIG.path
 
     @JvmStatic
@@ -37,6 +36,15 @@ object ResourcePackFileServer {
     @JvmStatic
     fun getPath(): String {
         return path
+    }
+
+    @JvmStatic
+    fun getSha1(): String {
+        return sha1
+    }
+
+    fun setSha1(s: String) {
+        sha1 = s
     }
 
     fun setPath(location: String) {
@@ -103,7 +111,7 @@ object ResourcePackFileServer {
 
     private val isServerNeedToRun: Boolean
         get() {
-            // Check if server is enabled
+            // Check if the server is enabled
             if (!CONFIG.enabled) {
                 LOGGER.info("Resourcepack server is disabled")
                 return false
