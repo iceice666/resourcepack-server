@@ -73,7 +73,6 @@ object Command {
         LOGGER.info("Set local resourcepack path to $localPath")
         ResourcePackFileServer.setPath(localPath)
         ResourcePackFileServer.calculateSha1()
-        ResourcePackFileServer.isLocalPath = true
         return SINGLE_SUCCESS
     }
 
@@ -83,7 +82,6 @@ object Command {
         LOGGER.info("Set url resourcepack path to $urlPath")
         ResourcePackFileServer.setSha1(sha1)
         ResourcePackFileServer.setPath(urlPath)
-        ResourcePackFileServer.isLocalPath = false
         return SINGLE_SUCCESS
     }
 

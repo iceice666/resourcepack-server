@@ -45,6 +45,7 @@ object ResourcePackFileServer {
     // Setter for the path of the resource pack, with string normalization.
     fun setPath(location: String) {
         path = location.trim().lowercase(Locale.getDefault())
+        isLocalPath = !path.startsWith("http://") && !path.startsWith("https://")
     }
 
     // Calculates the SHA-1 checksum of the file at the given path.
@@ -103,6 +104,17 @@ object ResourcePackFileServer {
 internal class FileHandler : HttpHandler {
     @Throws(IOException::class)
     override fun handle(exchange: HttpExchange) {
+        val path = ResourcePackFileServer.getPath()
+        // Check if the path is a URL
+        if (path.startsWith("http://") || path.startsWith("https://")) {
+            // Redirect to the URL
+            exchange.responseHeaders.add("Location", path)
+            exchange.sendResponseHeaders(302, -1) // -1 indicates no response body
+            exchange.close()
+
+            return
+        }
+
         val file = File(ResourcePackFileServer.getPath())
 
         // Send the response headers before writing data to the response output stream.
