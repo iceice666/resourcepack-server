@@ -1,8 +1,8 @@
 
-## v1.0.4 (2023/11/05)
+## v1.0.5 (2023/11/24)
 
-### Added
-- command `resourcepackserver debug`<br>
-  It will print the resourcepackserver all variables
+### Changed
+- Renamed `debug` to `info`, and changed some info messages.
 
-
+### Fixed
+- Fixed the `start` command not working.

@@ -18,7 +18,7 @@ object ResourcePackFileServer {
     private var server: HttpServer? = null
 
     private var sha1 = ""
-    var isLocalPath = true
+    private var isLocalPath = true
     private var path = CONFIG.path
 
     // Redirects only if the path is not local.
@@ -42,6 +42,9 @@ object ResourcePackFileServer {
         sha1 = s
     }
 
+
+    fun isServerRunning(): Boolean = server != null
+
     // Setter for the path of the resource pack, with string normalization.
     fun setPath(location: String) {
         path = location.trim().lowercase(Locale.getDefault())
@@ -64,17 +67,24 @@ object ResourcePackFileServer {
                 LOGGER.info("SHA-1 of server resourcepack is $sha1")
             }
         } catch (e: FileNotFoundException) {
-            LOGGER.error("Resourcepack not found. Please check your config file or run the command '/resourcepackserver set' to set the correct resourcepack.")
+            LOGGER.error(
+                """
+                Resourcepack not found. 
+                Please check your config file or run the command '/resourcepackserver set' to set the correct resourcepack.
+                """.trimIndent()
+            )
         } catch (e: Exception) {
             LOGGER.error("An error occurred while calculating SHA-1: ${e.message}")
         }
     }
 
     // Starts the HTTP server if needed.
-    fun start() {
-        if (!CONFIG.enabled) {
+    fun start(force: Boolean = false) {
+        if (!force && !CONFIG.enabled) {
+
             LOGGER.info("Resourcepack server is disabled")
             return
+
         }
 
         try {
@@ -87,7 +97,7 @@ object ResourcePackFileServer {
             LOGGER.info("Resourcepack server is running on port $port")
             calculateSha1()
         } catch (e: IOException) {
-            LOGGER.error("Failed to create file server", e)
+            LOGGER.error("Failed to start file server", e)
         }
     }
 
