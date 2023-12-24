@@ -20,7 +20,6 @@ class Mod : DedicatedServerModInitializer {
         ServerLifecycleEvents.SERVER_STARTED.register(ServerStarted { ResourcePackFileServer.start() })
         ServerLifecycleEvents.SERVER_STOPPING.register(ServerStopping {
             ResourcePackFileServer.stop()
-            ResourcePackFileServer.configLoader.saveConfig()
         })
     }
 

@@ -1,8 +1,10 @@
 
-## v1.0.5 (2023/11/24)
+## v1.0.6 (2023/12/25)
 
 ### Changed
-- Renamed `debug` to `info`, and changed some info messages.
+- Renamed command `resourcepackserver` to `rps`.
 
-### Fixed
-- Fixed the `start` command not working.
+## Added
+- Add feedback of `start` and `stop` command
+
+

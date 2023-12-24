@@ -21,10 +21,11 @@ object Command {
     private const val SINGLE_SUCCESS = Command.SINGLE_SUCCESS
 
     // This function defines your command
-    fun register(dispatcher: CommandDispatcher<ServerCommandSource?> ) {
+    fun register(dispatcher: CommandDispatcher<ServerCommandSource?>) {
         dispatcher.register(
             literal("rps")
                 .requires { source: ServerCommandSource -> source.hasPermissionLevel(1) }
+                .executes { executeHelp(it) }
                 .then(
                     literal("refreshSha1")
                         .executes { executeRecalc() }
@@ -64,55 +65,62 @@ object Command {
                 ).then(
                     literal("stop").executes {
                         if (ResourcePackFileServer.isServerRunning()) {
-                            it.source.sendFeedback({Text.of("Stopping server!")},true)
+                            it.source.sendFeedback({ Text.of("Stopping server!") }, true)
                             ResourcePackFileServer.stop()
                         } else {
-                            it.source.sendFeedback({Text.of("The server hasn't started yet.")} , true)
+                            it.source.sendFeedback({ Text.of("The server hasn't started yet.") }, true)
                         }
                         return@executes 1
                     }
+                ).then(
+                    literal("help").executes { executeHelp(it) }
                 )
         )
     }
 
+    private fun executeHelp(context: CommandContext<ServerCommandSource>): Int {
+        context.source.sendFeedback({
+            Text.of(
+                """
+                                Available commands:
+                                  help => Show this message. 
+                                  start => Start the server.
+                                  stop => Stop the server.
+                                  info => Check server info.
+                                  set local <path> => Set server resource pack to a local path.
+                                  set url <url> <sha1> => Set a redirect to <url, and check resource pack with <sha1>
+                                """.trimIndent()
+            )
+        }, true)
+        return 1
+    }
+
     private fun executeInfo(context: CommandContext<ServerCommandSource>): Int {
         if (!ResourcePackFileServer.isServerRunning()) {
-            if (context.source.isExecutedByPlayer)
-                context.source.player?.sendMessage(Text.literal("ResourcePackServer is not running!"))
-            else
-                LOGGER.warn("ResourcePackServer is not running!")
+            context.source.sendFeedback({ Text.literal("ResourcePackServer is not running!") }, true)
         } else {
 
-            if (context.source.isExecutedByPlayer) {
+            val text = Text.of("\n") as MutableText
+            text.append("Current path: " + getPath())
 
-                val player = context.source.player
-
-                val text = Text.of("") as MutableText
-                text.append("Current path:" + getPath())
-
-                if (shouldRedirect())
-                    text.append(
-                        (Text.of("   Redirected") as MutableText)
-                            .setStyle(
-                                Style.EMPTY
-                                    .withColor(Formatting.GREEN)
-                            )
-                    )
-
-
-                text.append("\n")
-                text.append("Sha1:" + getSha1())
-
-
-                player?.sendMessage(text)
-            } else
-                LOGGER.info(
-                    """
-                Current path: ${getPath()} ${if (shouldRedirect()) "   (Redirected)" else ""}
-                Sha1: ${getSha1()}
-                
-            """.trimIndent()
+            if (shouldRedirect())
+                text.append(
+                    (Text.of("  (Redirect)") as MutableText)
+                        .setStyle(
+                            Style.EMPTY
+                                .withColor(Formatting.GREEN)
+                        )
                 )
+
+            text.append("\n")
+            val sha1 = getSha1()
+            text.append(
+                "Sha1: " + if (sha1 == "") "<Not set yet>"
+                else sha1
+            )
+
+            context.source.sendFeedback({ text }, true)
+
 
         }
         return SINGLE_SUCCESS
@@ -120,14 +128,13 @@ object Command {
 
     private fun commandSetReminder(source: ServerCommandSource): Boolean {
         val text =
-            (Text.of("Warning! The path set by command will not be written back to the config file!") as MutableText)
+            (Text.of("Warning! The path set by command will not saved to the config file!") as MutableText)
                 .setStyle(
                     Style.EMPTY
                         .withColor(Formatting.YELLOW)
                 )
 
-        if (source.isExecutedByPlayer) source.player?.sendMessage(text)
-        else LOGGER.warn("Warning! The path set by command will not be written back to the config file!")
+        source.sendFeedback({ text }, true)
 
         return true
 
