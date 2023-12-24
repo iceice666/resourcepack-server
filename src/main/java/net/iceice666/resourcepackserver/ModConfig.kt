@@ -30,7 +30,7 @@ class ModConfig : CustomConfig {
     @Comment(
         """
     resourcepack path
-    It's can be a local path or an url path.
+    It's can be a local path or an url.
     """
     )
     var path = "server_resourcepack.zip"

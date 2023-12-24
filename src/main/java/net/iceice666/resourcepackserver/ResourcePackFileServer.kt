@@ -42,7 +42,7 @@ object ResourcePackFileServer {
         sha1 = s
     }
 
-
+    @JvmStatic
     fun isServerRunning(): Boolean = server != null
 
     // Setter for the path of the resource pack, with string normalization.

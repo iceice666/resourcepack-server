@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+
 import java.util.Optional;
 
 @Mixin(ServerPropertiesHandler.class)
@@ -32,6 +33,8 @@ public abstract class OverwriteResourcePackProperties {
             boolean required,
             String prompt,
             CallbackInfoReturnable<Optional<MinecraftServer.ServerResourcePackProperties>> cir) {
+        if (!ResourcePackFileServer.isServerRunning()) cir.setReturnValue(Optional.empty());
+
         if (ResourcePackFileServer.shouldOverwriteSha1()) {
 
             Text text = ServerPropertiesHandler.parseResourcePackPrompt(prompt);
