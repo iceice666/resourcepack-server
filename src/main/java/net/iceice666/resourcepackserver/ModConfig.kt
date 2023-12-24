@@ -18,8 +18,8 @@ class ModConfig : CustomConfig {
     @Comment(
         """
     overwrite the sha1 of server resourcepack
-    if this is true, the server will calculate the sha1 of server_resourcepack.zip
-    and send it to client. and if you have been set a sha1 in server.properties, it will be ignored.
+    if this is true, the server will calculate the sha1 of server_resourcepack.zip and send it to client.
+    And if you have been set a sha1 in server.properties, it (sha1 in server.properties) will be ignored.
                                          
     This option will not be affected by the 'enabled' option.
     """
@@ -30,7 +30,7 @@ class ModConfig : CustomConfig {
     @Comment(
         """
     resourcepack path
-    It's can be a local path or a url path.
+    It's can be a local path or an url path.
     """
     )
     var path = "server_resourcepack.zip"

@@ -21,9 +21,9 @@ object Command {
     private const val SINGLE_SUCCESS = Command.SINGLE_SUCCESS
 
     // This function defines your command
-    fun register(dispatcher: CommandDispatcher<ServerCommandSource?>) {
+    fun register(dispatcher: CommandDispatcher<ServerCommandSource?> ) {
         dispatcher.register(
-            literal("resourcepackserver")
+            literal("rps")
                 .requires { source: ServerCommandSource -> source.hasPermissionLevel(1) }
                 .then(
                     literal("refreshSha1")
@@ -50,12 +50,25 @@ object Command {
                 )
                 .then(
                     literal("start").executes {
-                        ResourcePackFileServer.start(true)
+                        if (!ResourcePackFileServer.isServerRunning()) {
+                            it.source.sendFeedback({ Text.of("Starting server!") }, true)
+                            ResourcePackFileServer.start(true)
+                        } else {
+
+                            it.source.sendFeedback({ Text.of("The server is currently running.") }, true)
+                        }
+
+
                         return@executes 1
                     }
                 ).then(
                     literal("stop").executes {
-                        ResourcePackFileServer.stop()
+                        if (ResourcePackFileServer.isServerRunning()) {
+                            it.source.sendFeedback({Text.of("Stopping server!")},true)
+                            ResourcePackFileServer.stop()
+                        } else {
+                            it.source.sendFeedback({Text.of("The server hasn't started yet.")} , true)
+                        }
                         return@executes 1
                     }
                 )

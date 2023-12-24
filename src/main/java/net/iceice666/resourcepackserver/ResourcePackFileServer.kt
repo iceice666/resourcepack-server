@@ -106,7 +106,12 @@ object ResourcePackFileServer {
         server?.let {
             LOGGER.info("Stopping resourcepack server")
             it.stop(0)
+
+            // Set server to null
+            server = null
         }
+
+
     }
 }
 
