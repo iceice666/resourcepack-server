@@ -39,10 +39,6 @@ public abstract class OverwriteResourcePackProperties {
 
             Text text = ServerPropertiesHandler.parseResourcePackPrompt(prompt);
 
-            LOGGER.info(ResourcePackFileServer.shouldRedirect() + "\n"
-                    + url + "\n"
-                    + ResourcePackFileServer.getPath() + "\n"
-                    + ResourcePackFileServer.getSha1());
 
             cir.setReturnValue(Optional.of(new MinecraftServer.ServerResourcePackProperties(
                     ResourcePackFileServer.shouldRedirect() ? ResourcePackFileServer.getPath() : url,
