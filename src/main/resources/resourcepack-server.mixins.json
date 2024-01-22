@@ -3,7 +3,7 @@
   "package": "net.iceice666.resourcepackserver.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "OverwriteResourcePackProperties"
+    "OverwriteResourcePackPacket"
   ],
   "server": [],
   "injectors": {
