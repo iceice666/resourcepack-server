@@ -11,26 +11,14 @@ class ModConfig : CustomConfig {
     var serverPort = 25566
 
     @JvmField
-    @Comment("enable the server")
+    @Comment("enable the server on startup")
     var enabled = true
 
     @JvmField
     @Comment(
         """
-    overwrite the sha1 of server resourcepack
-    if this is true, the server will calculate the sha1 of server_resourcepack.zip and send it to client.
-    And if you have been set a sha1 in server.properties, it (sha1 in server.properties) will be ignored.
-                                         
-    This option will not be affected by the 'enabled' option.
-    """
-    )
-    var overwriteSha1 = true
-
-    @JvmField
-    @Comment(
-        """
     resourcepack path
-    It's can be a local path or an url.
+    It can be a local path or an url.
     """
     )
     var path = "server_resourcepack.zip"

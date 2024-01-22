@@ -7,52 +7,59 @@ import net.iceice666.resourcepackserver.lib.ConfigLoader
 import org.slf4j.Logger
 import java.io.*
 import java.net.InetSocketAddress
+import java.net.URL
+import java.net.URLConnection
 import java.security.MessageDigest
 import java.util.*
 
+
 // Object declaration for a singleton pattern that manages a resource pack file server.
 object ResourcePackFileServer {
-    var configLoader = ConfigLoader(ModConfig())
+    private var configLoader = ConfigLoader(ModConfig())
     private val CONFIG = configLoader.loadConfig()
     private val LOGGER: Logger = Mod.LOGGER
     private var server: HttpServer? = null
 
     private var sha1 = ""
-    private var isLocalPath = true
-    private var path = CONFIG.path
-
-    // Redirects only if the path is not local.
-    @JvmStatic
-    fun shouldRedirect(): Boolean = !isLocalPath
-
-    // Determines if the SHA-1 should be overwritten based on the configuration.
-    @JvmStatic
-    fun shouldOverwriteSha1(): Boolean = CONFIG.overwriteSha1
+    private var path = ""
+    private var resPath =""
 
     // Getter for the server path.
     @JvmStatic
     fun getPath(): String = path
 
+    @JvmStatic
+    fun getResPath(): String = resPath
+
     // Getter for the SHA-1 checksum.
     @JvmStatic
     fun getSha1(): String = sha1
-
-    // Setter for the SHA-1 checksum.
-    fun setSha1(s: String) {
-        sha1 = s
-    }
 
     @JvmStatic
     fun isServerRunning(): Boolean = server != null
 
     // Setter for the path of the resource pack, with string normalization.
     fun setPath(location: String) {
-        path = location.trim().lowercase(Locale.getDefault())
-        isLocalPath = !path.startsWith("http://") && !path.startsWith("https://")
+        path = location.trim()
+        resPath = path
+
+        if (path.startsWith("http://") || path.startsWith("https://")) {
+
+            try {
+                downloadFile(resPath, "tmpfile-res.zip")
+                resPath = "tmpfile-res.zip"
+            } catch (e: IOException) {
+                LOGGER.error("Failed to download file", e)
+                return
+            }
+        }
+
+        calculateSha1(resPath)
+
     }
 
     // Calculates the SHA-1 checksum of the file at the given path.
-    fun calculateSha1() {
+    fun calculateSha1(path: String = resPath) {
         try {
             FileInputStream(path).use { fis ->
                 val sha1Digest = MessageDigest.getInstance("SHA-1")
@@ -70,7 +77,7 @@ object ResourcePackFileServer {
             LOGGER.error(
                 """
                 Resourcepack not found. 
-                Please check your config file or run the command '/resourcepackserver set' to set the correct resourcepack.
+                Please check your config file or run the command '/rps set' to set the correct resourcepack.
                 """.trimIndent()
             )
         } catch (e: Exception) {
@@ -95,10 +102,16 @@ object ResourcePackFileServer {
                 start()
             }
             LOGGER.info("Resourcepack server is running on port $port")
-            calculateSha1()
+
         } catch (e: IOException) {
             LOGGER.error("Failed to start file server", e)
+            return
         }
+
+        setPath(CONFIG.path)
+
+
+
     }
 
     // Stops the server if it's running.
@@ -110,32 +123,34 @@ object ResourcePackFileServer {
             // Set server to null
             server = null
         }
-
-
     }
 }
 
+
+@Throws(IOException::class)
+fun downloadFile(fileUrl: String, destinationPath: String) {
+    val url = URL(fileUrl)
+    val connection: URLConnection = url.openConnection()
+    connection.getInputStream().use { `in` ->
+        FileOutputStream(destinationPath).use { out ->
+            val buffer = ByteArray(1024)
+            var bytesRead: Int
+            while ((`in`.read(buffer).also { bytesRead = it }) != -1) {
+                out.write(buffer, 0, bytesRead)
+            }
+        }
+    }
+}
 // Handler class that responds to HTTP requests with the resource pack file.
 internal class FileHandler : HttpHandler {
     @Throws(IOException::class)
     override fun handle(exchange: HttpExchange) {
-        val path = ResourcePackFileServer.getPath()
-        // Check if the path is a URL
-        if (path.startsWith("http://") || path.startsWith("https://")) {
-            // Redirect to the URL
-            exchange.responseHeaders.add("Location", path)
-            exchange.sendResponseHeaders(302, -1) // -1 indicates no response body
-            exchange.close()
-
-            return
-        }
-
-        val file = File(ResourcePackFileServer.getPath())
+        val file = File(ResourcePackFileServer.getResPath())
 
         // Send the response headers before writing data to the response output stream.
         exchange.responseHeaders.apply {
             put("Content-Type", listOf("application/zip"))
-            put("Content-Disposition", listOf("attachment; filename=\"server_resourcepack.zip\""))
+            put("Content-Disposition", listOf("attachment; filename=\"${ResourcePackFileServer.getSha1()}.zip\""))
         }
         exchange.sendResponseHeaders(200, file.length())
 
