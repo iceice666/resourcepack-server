@@ -86,6 +86,7 @@ object Command {
                   refreshSha1 => Refresh the sha1 of the resource pack.
                   set <path> => Set server resource pack to a local path / url.
                                 When set to a local path, beware that the path will not expand to absolute path.
+                                '.' and '..' still works.                           
                                 (e.g. `~/my-resource-pack` will not work, use `/home/<username>/my-resource-pack` instead.)
                                 When set to a url, the server will download the resource pack from the url.
                 """.trimIndent()

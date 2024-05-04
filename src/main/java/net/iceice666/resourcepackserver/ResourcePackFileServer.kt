@@ -64,17 +64,15 @@ object ResourcePackFileServer {
             }
             resPath = "tmpfile-res.zip"
         } else {
-            val tmpPath = Paths.get(tmpPath)
-            if (!tmpPath.toAbsolutePath().startsWith(gameAbsDir)) {
-                return "Cannot resolve the file path.\n" +
-                        "Please ensure the file is under the game directory(${
-                            gameAbsDir
-                        })\n" +
+            val tmpPath = Paths.get(tmpPath).toAbsolutePath().normalize()
+            if (!tmpPath.startsWith(gameAbsDir)) {
+                return "Cannot resolve the file path($tmpPath).\n" +
+                        "Please ensure the file is under the game directory($gameAbsDir)\n" +
                         "and ends with '.zip'."
             }
 
             if (!tmpPath.isReadable()) {
-                return "Cannot read the file.\n" +
+                return "Cannot read the file($tmpPath).\n" +
                         "Please ensure the file exists and is readable."
             }
 
