@@ -4,7 +4,7 @@ import com.mojang.brigadier.Command
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.context.CommandContext
-import net.iceice666.resourcepackserver.ResourcePackFileServer.getPath
+import net.iceice666.resourcepackserver.ResourcePackFileServer.getOriginPath
 import net.iceice666.resourcepackserver.ResourcePackFileServer.getResPath
 import net.iceice666.resourcepackserver.ResourcePackFileServer.getSha1
 import net.minecraft.server.command.CommandManager.argument
@@ -28,10 +28,10 @@ object Command {
                 .executes { executeHelp(it) }
                 .then(
                     literal("refreshSha1")
-                        .executes { executeRecalc() }
+                        .executes { executeRecalc(it) }
                 ).then(
                     literal("set")
-                        .requires{source: ServerCommandSource-> source.hasPermissionLevel(3)}
+                        .requires { source: ServerCommandSource -> source.hasPermissionLevel(3) }
                         .then(
                             argument("uri", StringArgumentType.string())
                                 .executes { context -> executeSetLocal(context) }
@@ -42,31 +42,31 @@ object Command {
                 )
                 .then(
                     literal("start")
-                        .requires{source: ServerCommandSource-> source.hasPermissionLevel(3)}
+                        .requires { source: ServerCommandSource -> source.hasPermissionLevel(3) }
                         .executes {
-                        if (!ResourcePackFileServer.isServerRunning()) {
-                            it.source.sendFeedback({ Text.of("Starting server!") }, true)
-                            ResourcePackFileServer.start(true)
-                        } else {
+                            if (!ResourcePackFileServer.isServerRunning()) {
+                                it.source.sendFeedback({ Text.of("Starting server!") }, true)
+                                ResourcePackFileServer.start(true)
+                            } else {
 
-                            it.source.sendFeedback({ Text.of("The server is currently running.") }, true)
+                                it.source.sendFeedback({ Text.of("The server is currently running.") }, true)
+                            }
+
+
+                            return@executes 1
                         }
-
-
-                        return@executes 1
-                    }
                 ).then(
                     literal("stop")
-                        .requires{source: ServerCommandSource-> source.hasPermissionLevel(3)}
+                        .requires { source: ServerCommandSource -> source.hasPermissionLevel(3) }
                         .executes {
-                        if (ResourcePackFileServer.isServerRunning()) {
-                            it.source.sendFeedback({ Text.of("Stopping server!") }, true)
-                            ResourcePackFileServer.stop()
-                        } else {
-                            it.source.sendFeedback({ Text.of("The server hasn't started yet.") }, true)
+                            if (ResourcePackFileServer.isServerRunning()) {
+                                it.source.sendFeedback({ Text.of("Stopping server!") }, true)
+                                ResourcePackFileServer.stop()
+                            } else {
+                                it.source.sendFeedback({ Text.of("The server hasn't started yet.") }, true)
+                            }
+                            return@executes 1
                         }
-                        return@executes 1
-                    }
                 ).then(
                     literal("help").executes { executeHelp(it) }
                 )
@@ -78,13 +78,17 @@ object Command {
         context.source.sendFeedback({
             Text.of(
                 """
-                                Available commands:
-                                  help => Show this message. 
-                                  start => Start the server.
-                                  stop => Stop the server.
-                                  info => Check server info.
-                                  set <path> => Set server resource pack to a local path / url.
-                                """.trimIndent()
+                Available commands:
+                  help => Show this message.
+                  start => Start the server.
+                  stop => Stop the server.
+                  info => Check server info.
+                  refreshSha1 => Refresh the sha1 of the resource pack.
+                  set <path> => Set server resource pack to a local path / url.
+                                When set to a local path, beware that the path will not expand to absolute path.
+                                (e.g. `~/my-resource-pack` will not work, use `/home/<username>/my-resource-pack` instead.)
+                                When set to a url, the server will download the resource pack from the url.
+                """.trimIndent()
             )
         }, true)
         return 1
@@ -97,12 +101,12 @@ object Command {
 
             val text = Text.of("\n") as MutableText
             val resPath = getResPath()
-            text.append("Current path:  ${getPath()} ${if (resPath != "") "(${resPath})" else ""}")
+            text.append("Current path:  ${getOriginPath()} ${if (resPath != "") "(${resPath})" else ""}")
 
             text.append("\n")
             val sha1 = getSha1()
             text.append(
-                "Sha1: ${ if (sha1 != "") sha1 else "Not set yet."}}"
+                "Sha1: ${if (sha1 != "") sha1 else "Not set yet."}"
             )
 
             context.source.sendFeedback({ text }, true)
@@ -129,14 +133,13 @@ object Command {
     private fun executeSetLocal(context: CommandContext<ServerCommandSource>): Int {
         commandSetReminder(context.source)
         val uri = StringArgumentType.getString(context, "uri")
-        ResourcePackFileServer.setPath(uri)
-        LOGGER.info("Set resourcepack path to ${getResPath()}")
+        context.source.sendFeedback({ Text.of(ResourcePackFileServer.setPath(uri)) }, true)
+
         return SINGLE_SUCCESS
     }
 
-    private fun executeRecalc(): Int {
-        LOGGER.info("Re-calculate SHA-1 of server resourcepack...")
-        ResourcePackFileServer.calculateSha1()
+    private fun executeRecalc(context: CommandContext<ServerCommandSource>): Int {
+        context.source.sendFeedback({ Text.of( ResourcePackFileServer.calculateSha1()) }, true)
         return SINGLE_SUCCESS
     }
 }

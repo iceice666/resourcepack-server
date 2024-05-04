@@ -21,12 +21,16 @@ object ResourcePackFileServer {
     private var server: HttpServer? = null
 
     private var sha1 = ""
-    private var path = ""
-    private var resPath =""
+
+    // origin
+    private var originPath = ""
+
+    // resolved
+    private var resPath = ""
 
     // Getter for the server path.
     @JvmStatic
-    fun getPath(): String = path
+    fun getOriginPath(): String = originPath
 
     @JvmStatic
     fun getResPath(): String = resPath
