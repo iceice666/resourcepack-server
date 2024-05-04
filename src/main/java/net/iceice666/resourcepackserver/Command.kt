@@ -31,6 +31,7 @@ object Command {
                         .executes { executeRecalc() }
                 ).then(
                     literal("set")
+                        .requires{source: ServerCommandSource-> source.hasPermissionLevel(3)}
                         .then(
                             argument("uri", StringArgumentType.string())
                                 .executes { context -> executeSetLocal(context) }
@@ -40,7 +41,9 @@ object Command {
                     literal("info").executes { context -> executeInfo(context) }
                 )
                 .then(
-                    literal("start").executes {
+                    literal("start")
+                        .requires{source: ServerCommandSource-> source.hasPermissionLevel(3)}
+                        .executes {
                         if (!ResourcePackFileServer.isServerRunning()) {
                             it.source.sendFeedback({ Text.of("Starting server!") }, true)
                             ResourcePackFileServer.start(true)
@@ -53,7 +56,9 @@ object Command {
                         return@executes 1
                     }
                 ).then(
-                    literal("stop").executes {
+                    literal("stop")
+                        .requires{source: ServerCommandSource-> source.hasPermissionLevel(3)}
+                        .executes {
                         if (ResourcePackFileServer.isServerRunning()) {
                             it.source.sendFeedback({ Text.of("Stopping server!") }, true)
                             ResourcePackFileServer.stop()
