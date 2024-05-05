@@ -41,30 +41,36 @@ object Command {
                     literal("info").executes { context -> executeInfo(context) }
                 )
                 .then(
+
                     literal("start")
                         .requires { source: ServerCommandSource -> source.hasPermissionLevel(3) }
                         .executes {
                             if (!ResourcePackFileServer.isServerRunning()) {
-                                it.source.sendFeedback({ Text.of("Starting server!") }, true)
+                                it.source.sendFeedback( Text.of("Starting server!") , true)
                                 ResourcePackFileServer.start(true)
                             } else {
-                                it.source.sendFeedback({ Text.of("The server is currently running.") }, true)
+                                it.source.sendFeedback( Text.of("The server is currently running.") , true)
                             }
 
 
                             return@executes 1
+
+              
+
                         }
                 ).then(
+
                     literal("stop")
                         .requires { source: ServerCommandSource -> source.hasPermissionLevel(3) }
                         .executes {
                             if (ResourcePackFileServer.isServerRunning()) {
-                                it.source.sendFeedback({ Text.of("Stopping server!") }, true)
+                                it.source.sendFeedback( Text.of("Stopping server!") , true)
                                 ResourcePackFileServer.stop()
                             } else {
-                                it.source.sendFeedback({ Text.of("The server hasn't started yet.") }, true)
+                                it.source.sendFeedback( Text.of("The server hasn't started yet.") , true)
                             }
                             return@executes 1
+
                         }
                 ).then(
                     literal("help").executes { executeHelp(it) }
@@ -74,7 +80,7 @@ object Command {
 
 
     private fun executeHelp(context: CommandContext<ServerCommandSource>): Int {
-        context.source.sendFeedback({
+        context.source.sendFeedback(
             Text.of(
                 """
                 Available commands:
@@ -90,13 +96,13 @@ object Command {
                                 When set to a url, the server will download the resource pack and treat as a local file.
                 """.trimIndent()
             )
-        }, true)
+        , true)
         return 1
     }
 
     private fun executeInfo(context: CommandContext<ServerCommandSource>): Int {
         if (!ResourcePackFileServer.isServerRunning()) {
-            context.source.sendFeedback({ Text.literal("ResourcePackServer is not running!") }, true)
+            context.source.sendFeedback( Text.literal("ResourcePackServer is not running!") , true)
         } else {
             val text = Text.of("\n") as MutableText
             val resPath = getResPath()
@@ -108,7 +114,7 @@ object Command {
                 "Sha1: ${if (sha1 != "") sha1 else "Not set yet."}"
             )
 
-            context.source.sendFeedback({ text }, true)
+            context.source.sendFeedback( text , true)
 
 
         }
@@ -123,7 +129,7 @@ object Command {
                         .withColor(Formatting.YELLOW)
                 )
 
-        source.sendFeedback({ text }, true)
+        source.sendFeedback( text , true)
 
         return true
 
@@ -132,13 +138,13 @@ object Command {
     private fun executeLoad(context: CommandContext<ServerCommandSource>): Int {
         commandSetReminder(context.source)
         val uri = StringArgumentType.getString(context, "uri")
-        context.source.sendFeedback({ Text.of(ResourcePackFileServer.setPath(uri)) }, true)
+        context.source.sendFeedback( Text.of(ResourcePackFileServer.setPath(uri)) , true)
 
         return SINGLE_SUCCESS
     }
 
     private fun executeReload(context: CommandContext<ServerCommandSource>): Int {
-        context.source.sendFeedback({ Text.of(ResourcePackFileServer.calculateSha1()) }, true)
+        context.source.sendFeedback( Text.of(ResourcePackFileServer.calculateSha1()) , true)
         return SINGLE_SUCCESS
     }
 }

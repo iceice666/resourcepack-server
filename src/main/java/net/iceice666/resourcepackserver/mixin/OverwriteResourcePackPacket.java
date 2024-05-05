@@ -1,21 +1,17 @@
 package net.iceice666.resourcepackserver.mixin;
 
 import net.iceice666.resourcepackserver.ResourcePackFileServer;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.common.ResourcePackSendS2CPacket;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.SendResourcePackTask;
-import org.spongepowered.asm.mixin.Final;
+import net.minecraft.network.packet.s2c.play.ResourcePackSendS2CPacket;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-
-import java.util.function.Consumer;
-
-@Mixin(SendResourcePackTask.class)
+@Mixin(ServerPlayerEntity.class)
 public abstract class OverwriteResourcePackPacket {
 
     private OverwriteResourcePackPacket() {
@@ -23,17 +19,18 @@ public abstract class OverwriteResourcePackPacket {
 
 
     @Shadow
-    @Final
-    private MinecraftServer.ServerResourcePackProperties packProperties;
+    public ServerPlayNetworkHandler networkHandler;
 
-    @Inject(at = @At("HEAD"), method = "sendPacket(Ljava/util/function/Consumer;)V", cancellable = true)
-    private void hash(Consumer<Packet<?>> sender, CallbackInfo ci) {
+    @Inject(at = @At("HEAD"), method = "sendResourcePackUrl(Ljava/lang/String;Ljava/lang/String;ZLnet/minecraft/text/Text;)V", cancellable = true)
+    private void send(String url, String hash, boolean required, Text resourcePackPrompt, CallbackInfo ci) {
         if (ResourcePackFileServer.isServerRunning()) {
-            sender.accept(new ResourcePackSendS2CPacket(
-                    this.packProperties.url(),
+
+            networkHandler.sendPacket(new ResourcePackSendS2CPacket(
+                    url,
                     ResourcePackFileServer.getSha1(),
-                    this.packProperties.isRequired(),
-                    this.packProperties.prompt()));
+                    required,
+                    resourcePackPrompt));
+
             ci.cancel();
         }
     }
