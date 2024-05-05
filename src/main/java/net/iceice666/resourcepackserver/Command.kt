@@ -27,14 +27,14 @@ object Command {
                 .requires { source: ServerCommandSource -> source.hasPermissionLevel(1) }
                 .executes { executeHelp(it) }
                 .then(
-                    literal("refreshSha1")
-                        .executes { executeRecalc(it) }
+                    literal("reload")
+                        .executes { executeReload(it) }
                 ).then(
-                    literal("set")
+                    literal("load")
                         .requires { source: ServerCommandSource -> source.hasPermissionLevel(3) }
                         .then(
                             argument("uri", StringArgumentType.string())
-                                .executes { context -> executeSetLocal(context) }
+                                .executes { context -> executeLoad(context) }
                         )
 
                 ).then(
@@ -48,7 +48,6 @@ object Command {
                                 it.source.sendFeedback({ Text.of("Starting server!") }, true)
                                 ResourcePackFileServer.start(true)
                             } else {
-
                                 it.source.sendFeedback({ Text.of("The server is currently running.") }, true)
                             }
 
@@ -83,12 +82,12 @@ object Command {
                   start => Start the server.
                   stop => Stop the server.
                   info => Check server info.
-                  refreshSha1 => Refresh the sha1 of the resource pack.
-                  set <path> => Set server resource pack to a local path / url.
+                  reload => Check if the resource pack is valid and recalculate the sha1.
+                  load <path> => Load server resource pack from a local path or remote url.
                                 When set to a local path, beware that the path will not expand to absolute path.
                                 '.' and '..' still works.                           
                                 (e.g. `~/my-resource-pack` will not work, use `/home/<username>/my-resource-pack` instead.)
-                                When set to a url, the server will download the resource pack from the url.
+                                When set to a url, the server will download the resource pack and treat as a local file.
                 """.trimIndent()
             )
         }, true)
@@ -99,7 +98,6 @@ object Command {
         if (!ResourcePackFileServer.isServerRunning()) {
             context.source.sendFeedback({ Text.literal("ResourcePackServer is not running!") }, true)
         } else {
-
             val text = Text.of("\n") as MutableText
             val resPath = getResPath()
             text.append("Current path:  ${getOriginPath()} ${if (resPath != "") "(${resPath})" else ""}")
@@ -131,7 +129,7 @@ object Command {
 
     }
 
-    private fun executeSetLocal(context: CommandContext<ServerCommandSource>): Int {
+    private fun executeLoad(context: CommandContext<ServerCommandSource>): Int {
         commandSetReminder(context.source)
         val uri = StringArgumentType.getString(context, "uri")
         context.source.sendFeedback({ Text.of(ResourcePackFileServer.setPath(uri)) }, true)
@@ -139,8 +137,8 @@ object Command {
         return SINGLE_SUCCESS
     }
 
-    private fun executeRecalc(context: CommandContext<ServerCommandSource>): Int {
-        context.source.sendFeedback({ Text.of( ResourcePackFileServer.calculateSha1()) }, true)
+    private fun executeReload(context: CommandContext<ServerCommandSource>): Int {
+        context.source.sendFeedback({ Text.of(ResourcePackFileServer.calculateSha1()) }, true)
         return SINGLE_SUCCESS
     }
 }
