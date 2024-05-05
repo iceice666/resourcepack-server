@@ -6,11 +6,13 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.ServerStarted
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.ServerStopping
+import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.command.CommandRegistryAccess
 import net.minecraft.server.command.CommandManager.RegistrationEnvironment
 import net.minecraft.server.command.ServerCommandSource
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.nio.file.Path
 
 class Mod : DedicatedServerModInitializer {
     override fun onInitializeServer() {
@@ -27,5 +29,8 @@ class Mod : DedicatedServerModInitializer {
 
         @JvmField
         val LOGGER: Logger = LoggerFactory.getLogger("resourcepack-server")
+
+        @JvmField
+        val GAME_DIR: Path = FabricLoader.getInstance().gameDir
     }
 }

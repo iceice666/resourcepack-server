@@ -1,6 +1,6 @@
 # ResourcePack Server
 
-This is a mod that allow you host a resource pack server on your own server.
+This is a mod that allows you to host a resource pack server on your own server.
 
 ## How to use
 1. Install the mod on your server.
@@ -13,7 +13,4 @@ If this is your first run with this mod, mod will generate a config for you.
 You can config the mod in the `config/resourcepack_server.properties` file.
 
 ## Mod commands
-- `calcSha1`<br>
-  This command can (re)calculate the sha1 of resourcepack.<br>
-  It's useful after you modify the resourcepack.<br><br>
-  Require [op-permission-level](https://minecraft.fandom.com/wiki/Permission_level) >=1
+Type `rps help` in the game chat to get help.`
