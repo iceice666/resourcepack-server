@@ -1,10 +1,15 @@
 
-## v1.0.7 (2024/01/22)
+## v1.0.8 (2024/05/05)
 
 ### Changed
-- Now the `set` command just need to pass a path.  
-  The file on remote will be downloaded and calculated its sha1.
+- rename subcommand `refreshSha1` to `reload`
+- rename subcommand `set` to `reload`
 
 ### Fixed
-- [#3](https://github.com/iceice666/resourcepack-server/issues/3)
+- [#8](https://github.com/iceice666/resourcepack-server/issues/8)
+Now server side will check the following rules when calculating the sha1 value of the resource pack:
+    - The file is under the game directory
+    - The file has `zip` extension (e.g. `file.zip`)
+    - The file includes `pack.mcmeta`
+
 
