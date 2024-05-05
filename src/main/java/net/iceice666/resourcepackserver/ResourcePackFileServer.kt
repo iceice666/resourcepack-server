@@ -71,16 +71,9 @@ object ResourcePackFileServer {
                         "and ends with '.zip'."
             }
 
-            if (!tmpPath.isReadable()) {
-                return "Cannot read the file($tmpPath).\n" +
-                        "Please ensure the file exists and is readable."
-            }
+
 
             resPath = tmpPath.toString()
-        }
-
-        if (!containsPackMcmeta()) {
-            return "File is not a valid resource pack."
         }
 
         return calculateSha1()
@@ -107,6 +100,15 @@ object ResourcePackFileServer {
 
     // Calculates the SHA-1 checksum of the file at the given path.
     fun calculateSha1(path: String = resPath): String {
+        val resPath = Paths.get(path)
+        if (!resPath.isReadable()) {
+            return "Cannot read the file($resPath).\n" +
+                    "Please ensure the file exists and is readable."
+        }
+
+        if (!containsPackMcmeta()) {
+            return "File is not a valid resource pack."
+        }
 
         val fis = FileInputStream(path)
         val sha1Digest = MessageDigest.getInstance("SHA-1")
