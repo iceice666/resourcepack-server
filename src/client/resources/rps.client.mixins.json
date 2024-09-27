@@ -1,0 +1,11 @@
+{
+	"required": true,
+	"package": "me.iceice666.rps.mixin.client",
+	"compatibilityLevel": "JAVA_21",
+	"client": [
+		"ModClientMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

@@ -1,0 +1,46 @@
+{
+	"schemaVersion": 1,
+	"id": "rps",
+	"version": "${version}",
+	"name": "ResourcePack Server",
+	"description": "This will start a small server to host server resource pack.",
+	"authors": [
+		"iceice666"
+	],
+	"contact": {
+		"homepage": "https://github.com/iceice666/resourcepack-server",
+		"sources": "https://github.com/iceice666/resourcepack-server",
+		"issues": "https://github.com/iceice666/resourcepack-server/issues"
+	},
+	"license": "AGPL-3",
+	"icon": "assets/rps/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			{
+				"value": "me.iceice666.rps.ModMain",
+				"adapter": "kotlin"
+			}
+		],
+		"client": [
+			{
+				"value": "me.iceice666.rps.ModClient",
+				"adapter": "kotlin"
+			}
+		]
+	},
+	"mixins": [
+		"rps.mixins.json",
+		{
+			"config": "rps.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.15.11",
+		"minecraft": "1.21",
+		"java": ">=21",
+		"fabric-api": "*",
+		"fabric-language-kotlin": "*"
+	}
+}

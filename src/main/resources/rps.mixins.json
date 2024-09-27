@@ -1,0 +1,11 @@
+{
+	"required": true,
+	"package": "me.iceice666.rps.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"mixins": [
+		"OverwriteResourcePackPacket"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
