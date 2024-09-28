@@ -84,11 +84,6 @@ tasks.jar {
     }
 }
 
-
-tasks.build {
-    finalizedBy(tasks.named("renameJar"))
-}
-
 // Uncomment and configure the maven publication if needed
 // publishing {
 //    publications {
