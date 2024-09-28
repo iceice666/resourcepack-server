@@ -65,7 +65,23 @@ object Command {
     }
 
     private fun execHelp(context: CommandContext<ServerCommandSource>): Int {
-        TODO("Not yet implemented")
+        context.source.sendFeedback({
+            Text.of(
+                """
+                Available commands:
+                  help => Show this message.
+                  start => Start the server.
+                  stop => Stop the server.
+                  status => Check server info.
+                  reload => Check if the resource pack is valid and recalculate the sha1.
+                  load <path> => Load server resource pack from a local path or remote url.
+                                When set to a local path, beware that the path will not expand to absolute path.
+                                '.' and '..' still works.                           
+                                (e.g. `~/my-resource-pack` will not work, use `/home/<username>/my-resource-pack` instead.)
+                                When set to a url, the server will download the resource pack and treat as a local file.
+                """.trimIndent()
+            )
+        }, false)
 
         return SINGLE_SUCCESS
     }
