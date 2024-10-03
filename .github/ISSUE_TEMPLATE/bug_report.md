@@ -19,7 +19,8 @@ A clear and concise description of what you expected to happen.
 **Environment (please complete the following information):**
  - OS: [e.g. Windows]
  - Minecraft version [e.g. 1.20.2]
- - Mod version [e.g. 1.0.7] 
+ - Mod version [e.g. 1.0.7]
+ - Loader version [e.g. Fabric 0.16.5]
 
 **Additional context**
 Add any other context about the problem here.
